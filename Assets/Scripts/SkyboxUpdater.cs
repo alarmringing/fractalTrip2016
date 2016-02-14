@@ -8,15 +8,20 @@ public class SkyboxUpdater : MonoBehaviour {
 
 	public RenderTexture trippyTexture;
 
+	float pitch = 1f;
+
 	float curlx = 0;
 	float curly = 0;
+	float curlyXGain = 0.03f;
+	float curlyYGain = -0.03f;
+	float baseCurl = 0.04f;
 	float f = Mathf.Sqrt(2)/2f;
 	float deley = 10;
-	float growth =0;
+	float growth =1;
 	float growthTarget = 0;
 
 	float nextTime = 0;
-	float updateRate = 0.2f;
+	float updateRate = 0.08f;
 
 
 	void Start()
@@ -32,97 +37,65 @@ public class SkyboxUpdater : MonoBehaviour {
 
 	void Update()
 	{
+		//curlx += ((Mathf.Deg2Rad * (360f/trippyTexture.height*Input.mousePosition.x)-curlx)/deley); 
+
+		//curly += ((Mathf.Deg2Rad * (360f/trippyTexture.height*Input.mousePosition.y)-curly)/deley); 
+
 		//updates teture to the trippy one
 		//Texture2D trippyTexture = Resources.Load("trippy_dynamic") as Texture2D;
 		if(Time.time > nextTime)
 		{
+			curlx += curlyXGain;
+			curly += curlyYGain;
 			RenderTexture.active = trippyTexture;
 			GL.LoadPixelMatrix( 0, trippyTexture.width, trippyTexture.height, 0 );
-			growth += (growthTarget/10f-growth+1f)/deley; 
+			//growth += (growthTarget/10f-growth+1f)/deley; 
 			//gameObject.GetComponent<Renderer>().material.mainTexture = RenderGLToTexture(trippyTexture.width,trippyTexture.height);
 			RenderGLToTexture(trippyTexture.width,trippyTexture.height);
 			nextTime += updateRate;
 		}
-		//branch(1.0f, 1);
 
-		//background(250); 
-		//stroke(0); 
-
-		//translate(width/2,height/3*2); 
-		//line(0,0,0,height/2); 
-		//branch(height/4.,17); 
-		//growth += (growthTarget/10-growth+1.)/deley; 
 	}
 
-	void branch(int width, int height, float startx, float starty, float len,int num, int id) 
+	void branch(float width, float height, float startx, float starty, float startCurl, float len,int num, int id) 
 	{ 
-		//RenderTexture.active = trippyTexture;
-
-		//GL.Color (Color.green);
-
-		//curlx += ((Mathf.Deg2Rad * (360f/height*Input.mousePosition.x)-curlx)/deley)*num; 
-		curlx += 0.005f*num;
-		curly += 0.005f*num;
-		//curly += ((Mathf.Deg2Rad * (360f/height*Input.mousePosition.y)-curly)/deley)*num; 
-
-		//Debug.Log("len is " + len + "num is " + num + " startx is " + startx + " starty is " + starty + " width is " + width + " curlx is " + curlx + " id is " + id);
-
 
 		len *= f; 
 		num -= 1; 
 		if((len > 1) && (num > 0)) 
 		{ 
 			float endx, endy;
-			endx = 0; endy = 0;
-
-			Debug.Log("len is " + len + "num is " + num + " startx is " + startx + " starty is " + starty + " width is " + width + " curlx is " + curlx + " id is " + id);
 
 
-			GL.PushMatrix(); 
-			//..GL.LoadPixelMatrix( 0, width, height, 0 );
-			endx = startx + Mathf.Cos(curlx)*len;
-			endy = starty + Mathf.Sin(curlx)*len;
-
-			GL.Begin( GL.LINES );
-			GL.Color( new Color( 1, 0, 0, 0.5f ) );
+			startCurl = startCurl + curlx;
+			endx = startx + Mathf.Cos(startCurl)*len;
+			endy = starty + Mathf.Sin(startCurl)*len;
 			GL.Vertex3( startx, starty, 0 );
 			GL.Vertex3( endx, endy, 0 );
-			GL.End();
+			//Debug.Log("just drew line from (" + startx + ", " + starty + "),  to (" + endx + ", " + endy + "), curvature " + startCurl + ", id is " + 1);
 
-			//translate(0,-len); 
-			branch(width, height, endx, endy, len, num, 1); 
-			GL.PopMatrix(); 
+			branch(width, height, endx, endy, startCurl, len, num, 1); 
+
 
 
 			len *= growth; 
-			GL.PushMatrix(); 
-			endx = startx + Mathf.Cos(curlx-curly)*len;
-			endy = starty + Mathf.Sin(curlx-curly)*len;
-			endx = startx; endy = starty + len; //some end position modification
-
-			//Debug.Log("We are here");
-
-			GL.Begin( GL.LINES );
-			GL.Color( new Color( 1, 0, 0, 0.5f ) );
+			startCurl = startCurl + curlx - curly;
+			endx = startx + Mathf.Cos(startCurl)*len;
+			endy = starty + Mathf.Sin(startCurl)*len;
 			GL.Vertex3( startx, starty, 0 );
 			GL.Vertex3( endx, endy, 0 );
-			GL.End();
+			//Debug.Log("Mathf.Cos(startCurl) = " + Mathf.Cos(startCurl));
+			//Debug.Log("Mathf.Sin(startCurl) = " + Mathf.Sin(startCurl));
 
-			//translate(0,-len); 
-			branch(width, height, endx, endy, len, num, 2); 
-			//Debug.Log("We are here");
-			GL.PopMatrix(); 
+			//Debug.Log("just drew line from (" + startx + ", " + starty + "),  to (" + endx + ", " + endy + "), curvature " + startCurl + ", id is " + 2);
+
+			branch(width, height, endx, endy, startCurl, len, num, 2); 
+
 		} 
 
-		/*
-		GL.PushMatrix();
-		GL.LoadPixelMatrix( 0, width, height, 0 );
-		GL.Begin( GL.LINES );
-		GL.Color( new Color( 1, 0, 0, 0.5f ) );
-		for( int i=0; i<10; i++ ) GL.Vertex3( Random.value * width, Random.value * height, 0 );
-		GL.End();
-		GL.PopMatrix();*/
 	}
+	
+
 		
 	void RenderGLToTexture( int width, int height )
 	{
@@ -138,9 +111,11 @@ public class SkyboxUpdater : MonoBehaviour {
 
 
 		// render GL immediately to the active render texture //
-		//GL.Begin( GL.LINES );
-		branch(width, height, width/2, height/2, 150f, 4, 0);
-		//GL.End();
+		GL.Begin( GL.LINES );
+		GL.Color( new Color( 1, 0, 0, 0.5f ) );
+		branch(width, height, width/2, height/2, curlx, 150f, 6, 0);
+		//branch(width, height, 0, 0, 0, 150f, 6, 0);
+		GL.End();
 
 		// read the active RenderTexture into a new Texture2D //
 		//newTexture.ReadPixels( new Rect( 0, 0, width, height ), 0, 0 );

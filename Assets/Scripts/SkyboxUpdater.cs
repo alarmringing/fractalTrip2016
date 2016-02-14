@@ -7,6 +7,16 @@ using System.Collections;
 public class SkyboxUpdater : MonoBehaviour {
 
 	public RenderTexture trippyTexture;
+	public GameObject AudioPlayer;
+	AudioSource playedAudio;
+	MusicDataSummarizer musicDataSummarizer;
+
+	float[] samples;
+	int numSamples = 1024;
+	float volume = 30f;
+	float rms = 0;
+	float outputPercentage = 0;
+	float squareSum= 0;
 
 	float pitch = 1f;
 
@@ -21,13 +31,15 @@ public class SkyboxUpdater : MonoBehaviour {
 	float growthTarget = 0;
 
 	float nextTime = 0;
-	float updateRate = 0.08f;
+	float updateRate = 0.02f;
 
 
 	void Start()
 	{
 		nextTime = Time.time + updateRate;
-
+		//playedAudio = AudioPlayer.GetComponent<AudioSource>();
+		musicDataSummarizer = AudioPlayer.GetComponent<MusicDataSummarizer>();
+		//Debug.Log(musicDataSummarizer.name);
 		// get a temporary RenderTexture //
 		//RenderTexture renderTexture = RenderTexture.GetTemporary( width, height );
 
@@ -37,16 +49,15 @@ public class SkyboxUpdater : MonoBehaviour {
 
 	void Update()
 	{
-		//curlx += ((Mathf.Deg2Rad * (360f/trippyTexture.height*Input.mousePosition.x)-curlx)/deley); 
-
-		//curly += ((Mathf.Deg2Rad * (360f/trippyTexture.height*Input.mousePosition.y)-curly)/deley); 
-
 		//updates teture to the trippy one
 		//Texture2D trippyTexture = Resources.Load("trippy_dynamic") as Texture2D;
 		if(Time.time > nextTime)
 		{
-			curlx += curlyXGain;
-			curly += curlyYGain;
+			outputPercentage = musicDataSummarizer.output;
+			Debug.Log(outputPercentage);
+			pitch = musicDataSummarizer.pitch;
+			curlx = 2.6f + outputPercentage * Mathf.PI/7;
+			curly = - outputPercentage * Mathf.PI/7;
 			RenderTexture.active = trippyTexture;
 			GL.LoadPixelMatrix( 0, trippyTexture.width, trippyTexture.height, 0 );
 			//growth += (growthTarget/10f-growth+1f)/deley; 
@@ -107,12 +118,14 @@ public class SkyboxUpdater : MonoBehaviour {
 
 		// clear GL //
 		//GL.Clear( false, true, Color.green );
-		GL.Clear(false, true, Color.yellow);
+		Color bgColor = new Color(outputPercentage*0.5f,1f - outputPercentage*0.5f,0.9f*pitch,1f);
+		GL.Clear(false, true, bgColor);
 
 
 		// render GL immediately to the active render texture //
 		GL.Begin( GL.LINES );
-		GL.Color( new Color( 1, 0, 0, 0.5f ) );
+		Color lineColor = new Color(1f-bgColor.r, 1f-bgColor.g, 1f-bgColor.b, 1f);
+		GL.Color( lineColor );
 		branch(width, height, width/2, height/2, curlx, 150f, 6, 0);
 		//branch(width, height, 0, 0, 0, 150f, 6, 0);
 		GL.End();

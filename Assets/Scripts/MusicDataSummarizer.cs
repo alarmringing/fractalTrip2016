@@ -7,8 +7,12 @@ public class MusicDataSummarizer : MonoBehaviour {
 	static int numHist = 10;
 	int numSamples = 1024;
 	AudioSource thisAudio;
-	float[] samples;
 	float[] history = new float[numHist];
+
+
+	public float[] samples;
+	public float pitch;
+	public float output;
 
 	Vector3 boxScale;
 
@@ -32,6 +36,8 @@ public class MusicDataSummarizer : MonoBehaviour {
 	void Update () {
 
 		thisAudio.GetOutputData(samples, 0);
+		output = outputSize();
+		pitch = thisAudio.pitch;
 
 		//Debug.Log ("freqs");
 		Debug.Log (biggestFreqs()[0]);
@@ -64,6 +70,16 @@ public class MusicDataSummarizer : MonoBehaviour {
 		return Crms - rms;
 	}
 
+	float outputSize() {
+		float squareSum = 0;
+
+		for(int i=0; i < samples.Length; i++) {
+			squareSum = samples[i]*samples[i];
+		}
+		float rms = Mathf.Sqrt(squareSum/(samples.Length));
+		float totalOutput = Mathf.Clamp01(rms*volume);
+		return totalOutput;
+	}
 
 	List<int> biggestFreqs() {
 		List<float[]> list = new List<float[]> ();

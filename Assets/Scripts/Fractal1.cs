@@ -70,6 +70,7 @@ public class Fractal1 : MonoBehaviour {
 	void Update() {
 		Vector3 scaleNow = transform.localScale;
 		gameObject.transform.localScale = scaleNow * (1 + curvature/1000);
+		gameObject.transform.position = new Vector3(transform.position.x, transform.position.y - 0.0003f, transform.position.z);
 	}
 
 	void Start () {

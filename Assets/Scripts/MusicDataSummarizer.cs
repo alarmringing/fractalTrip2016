@@ -13,6 +13,8 @@ public class MusicDataSummarizer : MonoBehaviour {
 	public float[] samples;
 	public float pitch;
 	public float output;
+	public float curvature;
+	public int[] freqs;
 
 	Vector3 boxScale;
 
@@ -38,9 +40,11 @@ public class MusicDataSummarizer : MonoBehaviour {
 		thisAudio.GetOutputData(samples, 0);
 		output = outputSize();
 		pitch = thisAudio.pitch;
+		curvature = kurve();
+		freqs = biggestFreqs().ToArray();
 
 		//Debug.Log ("freqs");
-		Debug.Log (biggestFreqs()[0]);
+		//Debug.Log (biggestFreqs()[0]);
 		//Debug.Log ("curve");
 		//Debug.Log (kurve());
 

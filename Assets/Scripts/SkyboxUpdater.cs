@@ -54,7 +54,6 @@ public class SkyboxUpdater : MonoBehaviour {
 		if(Time.time > nextTime)
 		{
 			outputPercentage = musicDataSummarizer.output;
-			Debug.Log(outputPercentage);
 			pitch = musicDataSummarizer.pitch;
 			curlx = 2.6f + outputPercentage * Mathf.PI/7;
 			curly = - outputPercentage * Mathf.PI/7;
@@ -76,8 +75,6 @@ public class SkyboxUpdater : MonoBehaviour {
 		if((len > 1) && (num > 0)) 
 		{ 
 			float endx, endy;
-
-
 			startCurl = startCurl + curlx;
 			endx = startx + Mathf.Cos(startCurl)*len;
 			endy = starty + Mathf.Sin(startCurl)*len;
@@ -86,7 +83,6 @@ public class SkyboxUpdater : MonoBehaviour {
 			//Debug.Log("just drew line from (" + startx + ", " + starty + "),  to (" + endx + ", " + endy + "), curvature " + startCurl + ", id is " + 1);
 
 			branch(width, height, endx, endy, startCurl, len, num, 1); 
-
 
 
 			len *= growth; 
@@ -110,17 +106,9 @@ public class SkyboxUpdater : MonoBehaviour {
 		
 	void RenderGLToTexture( int width, int height )
 	{
-		// get a temporary RenderTexture //
-		//RenderTexture renderTexture = RenderTexture.GetTemporary( width, height );
 
-		// set the RenderTexture as global target (that means GL too)
-
-
-		// clear GL //
-		//GL.Clear( false, true, Color.green );
 		Color bgColor = new Color(outputPercentage*0.5f,1f - outputPercentage*0.5f,0.9f*pitch,1f);
 		GL.Clear(false, true, bgColor);
-
 
 		// render GL immediately to the active render texture //
 		GL.Begin( GL.LINES );
@@ -130,21 +118,5 @@ public class SkyboxUpdater : MonoBehaviour {
 		//branch(width, height, 0, 0, 0, 150f, 6, 0);
 		GL.End();
 
-		// read the active RenderTexture into a new Texture2D //
-		//newTexture.ReadPixels( new Rect( 0, 0, width, height ), 0, 0 );
-
-		// apply pixels and compress //
-		/*
-		bool applyMipsmaps = false;
-		newTexture.Apply( applyMipsmaps );
-		bool highQuality = true;
-		newTexture.Compress( highQuality );*/
-
-		// clean up after the party //
-		//RenderTexture.active = null;
-		//RenderTexture.ReleaseTemporary( trippyTexture );
-
-		// return the goods //
-		//return newTexture;
 	}
 }
